@@ -4,14 +4,13 @@ name: deploy_frontend
 on:
     push:
         branches: [ main ]
-        paths: 
+        paths:
         - 'frontend/**'
-    
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:            
+    steps:
     - uses: actions/checkout@v2
     - uses: azure/login@v1
       with:
@@ -22,15 +21,17 @@ jobs:
       with:
         azcliversion: 2.0.72
         inlineScript: |
-            az storage blob upload-batch --account-name azureresume2738 -d '$web' -s frontend/
+            az storage blob upload-batch --account-name azureresume2738 -d '$web' -s frontend/ --overwrite
+            
     - name: Purge CDN endpoint
       uses: azure/CLI@v1
       with:
         azcliversion: 2.0.72
         inlineScript: |
-           az cdn endpoint purge --content-paths  "/*" --profile-name "azureresumeacdn" --name "azureresumeacdn" --resource-group "azureresume-rg"
+           az cdn endpoint purge --content-paths  "/*" --profile-name "azureresumecdn" --name "azureresumecdn" --resource-group "azureresume-rg"
 
-  # Azure logout 
+  # Azure logout
     - name: logout
       run: |
             az logout
+      if: always()
